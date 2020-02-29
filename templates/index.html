@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block javascript %}
+      <script type="text/javascript" charset="utf-8">
+
+        $(document).ready(function() {
+            var socket = io();
+            socket.on('connect', function() {
+                socket.emit('my_event', {data: 'I\'m connected3!'});
+            });
+            console.log('done')
+            socket.on('connect', function() {
+                socket.emit('my_event', {data: 'I\'m connected!'});
+            });
+            $('#solve-btn').click(function() {
+                let board = []
+                for (let i = 0; i < 9; i++) {
+                    let row = []
+                    for (let j = 0; j < 9; j++) {
+                        row[j] = document.querySelector(`#cell-input\\[${i*9 + j}\\]`).value
+                    }
+                    board[i] = row
+                }
+                console.log(board)
+                socket.emit('solve', {board: board});
+            })
+            $('form#soduko').submit(function(event) {
+                console.log('dsggjdsl')
+                socket.emit('my_event',  {data: "it's morphin time "});
+                return false;
+            });
+            console.log('dsg')
+                        socket.on('my_response', function(msg, cb) {
+                $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+                if (cb)
+                    cb();
+            });
+
+
+            socket.on('update_board', function(board) {
+                console.log(board)
+            });
+
+        });
+    </script>
+{% endblock %}
+{% block content %}
+<div class="game-container">
+  <div class="grid-container">
+  <form id="soduko" method="POST" action='#'>
+      {% for i in range(9) %}
+        <div class="grid-row">
+          {% for j in range(9) %}
+            <div class="grid-cell">
+              <input value="{{ board[i][j] if board[i][j]>0 }}" type="text" {{ 'disabled' if board[i][j]!=0 else '' }} maxlength="1" id='cell-input[{{ j+i*9 }}]' name='cell-input[{{ j+i*9 }}]' class="def-txt-input">
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+      <div class="button-container">
+          <input type="submit" value="Solve" class="btn btn-primary btn-block">
+          <button id="solve-btn" type="button" class="btn btn-primary btn-block"> Solve </button>
+        <button id="clear-btn" type="button" class="btn btn-secondary btn-block">Clear</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
