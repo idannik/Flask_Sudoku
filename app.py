@@ -1,10 +1,12 @@
 import os
+import time
 
 from flask import Flask
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template
 from flask_socketio import SocketIO, emit
 
 from data.sudopy import Sudoku
+from sudoko_solver import SudokoSolver
 
 # data.config.from_object('local_config')
 
@@ -34,15 +36,15 @@ def handle_message(message):
     print('received message: ' + message)
 
 @socketio.on('solve')
-def handle_message(board):
-    print('received message: ' + str(board))
-
+def handle_message(message):
+    solver = SudokoSolver(message['board'])
+    for board in solver.solve():
+        emit('update_board', {'board': board})
+        time.sleep(0.01)
 
 @app.route('/solution', methods=['POST'])
 def solution():
     print('hi')
-
-
 
 def clean_puzzle(puzzle):
     """

@@ -3,7 +3,8 @@ import requests
 
 class Sudoku:
     def __init__(self):
-        r = requests.get('https://sugoku.herokuapp.com/board?difficulty=easy')
+        level = 'easy'
+        r = requests.get(f'https://sugoku.herokuapp.com/board?difficulty={level}')
         self.board = r.json()['board']
         print(self.board)
 
