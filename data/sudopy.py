@@ -6,5 +6,5 @@ class Sudoku:
         level = 'easy'
         r = requests.get(f'https://sugoku.herokuapp.com/board?difficulty={level}')
         self.board = r.json()['board']
-        print(self.board)
+
 

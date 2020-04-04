@@ -1,0 +1,17 @@
+<div id="sudoku{{ board_num }}">
+    {% for i in range(9) %}
+        <div class="grid-row">
+            {% for j in range(9) %}
+                <div class="grid-cell">
+                    <input value="{{ board[i][j] if board[i][j]>0 }}"
+                           type="text" {{ 'disabled' if board[i][j]!=0 else '' }} maxlength="1"
+                           id='cell-input[{{ board_num }}][{{ j+i*9 }}]' class="def-txt-input">
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <div class="button-container">
+        <button id="solve-btn" type="button" class="btn btn-primary btn-block"> Solve</button>
+        <button id="clear-btn" type="button" class="btn btn-secondary btn-block">Clear</button>
+    </div>
+</div>
