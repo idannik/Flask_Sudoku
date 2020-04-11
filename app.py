@@ -25,6 +25,13 @@ if 'HEROKU' in os.environ:
 def index():
     return render_template('index.html', board=Sudoku().board)
 
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+    b = Sudoku().board
+    emit('update_board', {'board': b, 'id': 0})
+    emit('update_board', {'board': b, 'id': 1})
+
 
 @socketio.on('my_event')
 def handle_my_custom_event(json):
@@ -39,7 +46,8 @@ def handle_message(message):
 def handle_message(message):
     solver = SudokoSolver(message['board'])
     for board in solver.solve():
-        emit('update_board', {'board': board})
+        emit('update_board', {'board': board,
+                              'id': message['id']})
         time.sleep(0.01)
 
 @app.route('/solution', methods=['POST'])

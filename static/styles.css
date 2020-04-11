@@ -1,18 +1,27 @@
+.boards {
+  display: grid;
+  grid-template-columns: repeat(2, 50%);
+    gap: 3px;
+
+}
 .board {
   display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-template-rows: repeat(3, 100px);
+  grid-template-columns: repeat(3, 300px);
+  grid-template-rows: repeat(3, 300px);
 }
 .square {
   display: grid;
-   grid-template-columns: repeat(3, 33px);
-  grid-template-rows: repeat(3, 33px);
-    border: #0d6aad thick;
+  border: black   solid;
+  grid-template-columns: repeat(3, 33%);
+  grid-template-rows: repeat(3, 33%);
 
 
-  grid-gap: 1px;
 }
 
 .cell {
-   background: black;
+    border: black  1px solid;
+    font-family: monospace;
+    text-align:center;
+    font-size: 60px;
+
 }
