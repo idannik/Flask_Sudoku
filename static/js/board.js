@@ -16,7 +16,13 @@ $(document).ready(function () {
             for (let i = 0; i < 9; i++) {
                 let row = []
                 for (let j = 0; j < 9; j++) {
-                    row[j] = get_cell_accroding_to_row_and_col(i, j, id).value
+                    let val = get_cell_accroding_to_row_and_col(i, j, id).value
+                    if (val=='') {
+                        row[j] = 0
+                    } else {
+                        row[j] = parseInt(val)
+                    }
+
                 }
                 board[i] = row
             }

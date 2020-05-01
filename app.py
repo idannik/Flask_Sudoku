@@ -6,7 +6,7 @@ from flask import render_template
 from flask_socketio import SocketIO, emit
 
 from data.sudopy import Sudoku
-from sudoko_solver import SudokoSolver
+from sudoko_solver import SudokoBacktrackSolver, SudokoSmartSolver
 
 # data.config.from_object('local_config')
 
@@ -44,7 +44,8 @@ def handle_message(message):
 
 @socketio.on('solve')
 def handle_message(message):
-    solver = SudokoSolver(message['board'])
+    solver = SudokoSmartSolver(message['board'])
+    print(solver.stringify())
     for board in solver.solve():
         emit('update_board', {'board': board,
                               'id': message['id']})
