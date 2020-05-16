@@ -1,5 +1,5 @@
-from collections import Counter
-from copy import deepcopy
+from board_options_manager import BoardOptionsManager
+
 
 class SudokuSolver:
     def __init__(self, board):
@@ -54,7 +54,7 @@ class SudokuSolver:
         square_start_col = col - (col % 3)
         for i in range(3):
             for j in range(3):
-                val = self.board[square_start_row+i][square_start_col+j]
+                val = self.board[square_start_row + i][square_start_col + j]
                 if val == 0:
                     continue
                 if val in d:
@@ -88,82 +88,27 @@ class SudokoBacktrackSolver(SudokuSolver):
             yield self.board
 
 
-
 class SudokoSmartSolver(SudokuSolver):
-    def __init__(self, board):
+    def __init__(self, board, board_options_handler=None):
         super().__init__(board)
-        self.board_options = []
-        self.init_board_options()
-        self.update_board_options()
+        self.options_handler = board_options_handler or BoardOptionsManager()
+        self.options_handler.init_board_options(self.board)
+        self.options_handler.update_board_options(self.board)
 
-    def init_board_options(self):
-        for i in range(9):
-            row = []
-            for j in range(9):
-                val = set()
-                if self.board[i][j] == 0:
-                    val = set((1, 2, 3, 4, 5, 6, 7, 8, 9))
-                row.append(val)
-            self.board_options.append(row)
-
-    def update_board_options(self):
-        for i in range(9):
-            for j in range(9):
+    def solve(self):
+        while True:
+            next_steps = self.options_handler.next_step()
+            if not next_steps:
+                return
+            for (i, j), val in next_steps:
+                self.options_handler.options[i][j] = set()
+                self.board[i][j] = val
+                yield self.board
                 self.update_board_options_according_to_cell(i, j)
 
     def update_board_options_according_to_cell(self, row, col):
         val = self.board[row][col]
-        if val == 0:
-            return
-        for i in range(9):
-            self.board_options[i][col].discard(val)
-            self.board_options[row][i].discard(val)
-        square_start_row = row - (row % 3)
-        square_start_col = col - (col % 3)
-        for i in range(3):
-            for j in range(3):
-                self.board_options[square_start_row + i][square_start_col + j].discard(val)
+        return self.options_handler.update_board_options_according_to_cell(row, col, val)
 
-    def next_step(self):
-        res = set()
-        for i in range(9):
-            for j in range(9):
-                if len(self.board_options[i][j]) == 1:
-                    value = next(iter(self.board_options[i][j]))
-                    res.add(((i, j), value))
-                for value in self.board_options[i][j]:
-                    if self.only_value(i, j, value):
-                        res.add(((i, j), value))
-        return res
-
-    def only_value_in_row(self, row, value):
-        return len([k for k in range(9) if value in self.board_options[row][k]]) == 1
-
-    def only_value_in_col(self, col, value):
-        return len([k for k in range(9) if value in self.board_options[k][col]]) == 1
-
-    def only_value_in_square(self, row, col, value):
-        square_start_row = row - (row % 3)
-        square_start_col = col - (col % 3)
-        return len([(k,p) for p in range(3) for k in range(3) if value in self.board_options[square_start_row+p][square_start_col+k]]) == 1
-
-    def only_value(self, row, col, value):
-        return self.only_value_in_row(row, value) or \
-               self.only_value_in_col(col, value) or \
-               self.only_value_in_square(row, col, value)
-
-    def solve(self):
-
-        next_steps = self.next_step()
-        while next_steps:
-            for (i, j), val in next_steps:
-                self.board_options[i][j] = set()
-                self.board[i][j] = val
-                yield self.board
-                self.update_board_options_according_to_cell(i, j)
-            next_steps = self.next_step()
-
-
-
-
-
+    def print_options(self):
+        self.options_handler.print_options()

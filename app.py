@@ -45,6 +45,7 @@ def handle_message(message):
 @socketio.on('solve')
 def handle_message(message):
     solver = SudokoSmartSolver(message['board'])
+    solver.print_options()
     print(solver.stringify())
     for board in solver.solve():
         emit('update_board', {'board': board,

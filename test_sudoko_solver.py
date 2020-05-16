@@ -17,9 +17,9 @@ class TestSudokoSmartSolver:
             [9, 0, 0, 0, 0, 0, 0, 0, 0],
         ]
         solver = SudokoSmartSolver(board)
-        assert solver.board_options[2][4] == {5, 6, 7, 8, 9}
-        assert solver.board_options[0][0] == {8}
-        assert solver.board_options[3][2] == {6, 7, 8}
+        assert solver.options_handler.options[2][4] == {5, 6, 7, 8, 9}
+        assert solver.options_handler.options[0][0] == {8}
+        assert solver.options_handler.options[3][2] == {6, 7, 8}
 
     def test_next_board_options(self):
         board = [
@@ -34,4 +34,4 @@ class TestSudokoSmartSolver:
             [9, 0, 0, 0, 0, 0, 0, 0, 0],
         ]
         solver = SudokoSmartSolver(board)
-        assert ((0,0), 8) in solver.next_step()
+        assert ((0,0), 8) in solver.options_handler.next_step()

@@ -1,11 +1,42 @@
+import random
+
 import requests
 from bs4 import BeautifulSoup
 
+sudoku_boards = {
+    'easy': {
+        'min': 1000,
+        'max':  1977
+    },
+    'medium': {
+        'min': 2000,
+        'max':  2590
+    },
+    'hard': {
+        'min': 3000,
+        'max':  3484
+    },
+    'extra_hard': {
+        'min': 4000,
+        'max':  4722
+    }
+
+}
+
+LEVEL = "medium"
+
+def get_a_random_board(level='easy'):
+    min = sudoku_boards[level]['min']
+    max = sudoku_boards[level]['max']
+    return random.randint(min, max)
 
 class Sudoku:
     def __init__(self):
-        level = 'beginner'
-        r = requests.get(f'http://www.sudoku-online.co.il/sudoku-print.php?id=4500').text
+        # board = get_a_random_board(LEVEL)
+        # board = 2582
+        board = 4665
+        print(f'Picked {LEVEL} board: {board}')
+        r = requests.get(f'http://www.sudoku-online.co.il/sudoku-print.php?id=3400').text
         soup = BeautifulSoup(r, 'lxml')
         self.board = [[0] * 9 for _ in range(9)]
         for square_num, square in enumerate(soup.body.table.find_all('table')[1:]):
