@@ -91,7 +91,7 @@ class SudokoBacktrackSolver(SudokuSolver):
 class SudokoSmartSolver(SudokuSolver):
     def __init__(self, board, board_options_handler=None):
         super().__init__(board)
-        self.options_handler = board_options_handler or BoardOptionsManager()
+        self.options_handler = board_options_handler or BoardOptionsManager(self.board)
         self.options_handler.init_board_options(self.board)
         self.options_handler.update_board_options(self.board)
 

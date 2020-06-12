@@ -1,11 +1,14 @@
 from collections import defaultdict
+from copy import deepcopy
 
 from prettytable import PrettyTable
 
 
 class BoardOptionsManager:
-    def __init__(self, board_options=None):
+    def __init__(self, board=None, board_options=None):
+        self.board = board
         self.options = board_options or []
+
 
     def init_board_options(self, board):
         for i in range(9):
@@ -20,13 +23,42 @@ class BoardOptionsManager:
     def update_board_options(self, board):
         for i in range(9):
             for j in range(9):
-                self.update_board_options_according_to_cell(i, j, val=board[i][j])
+                if board[i][j] > 0:
+                    options = deepcopy(self.options)
+                    self.update_board_options_according_to_value(i, j, val=board[i][j])
+                    self.assert_rules()
+        for i in range(9):
+            self.update_board_options_according_to_row_group(i)
+            self.update_board_options_according_to_col_group(i)
+
 
     def update_board_options_according_to_cell(self, row, col, val=0):
-        self.update_board_options_according_to_value(col, row, val)
+        options = deepcopy(self.options)
+        self.assert_rules()
+
+        self.update_board_options_according_to_value(row, col, val)
+        options1 = deepcopy(self.options[row][col])
+        self.assert_rules()
         self.update_board_options_according_to_row_group(row)
+        options2 = deepcopy(self.options[row][col])
+        self.assert_rules()
+        options = deepcopy(self.options)
+
         self.update_board_options_according_to_col_group(col)
-        # self.update_board_options_according_to_square_group(row, col)
+        self.assert_rules()
+
+
+        self.update_board_options_according_to_square_group(row, col)
+        self.assert_rules()
+
+    def assert_rules(self):
+        for i in range(9):
+            for j in range(9):
+                options = self.options[i][j]
+                value = self.board[i][j]
+                assert options or value > 0
+                if len(self.options[i][j]) == 1:
+                    assert self.board[i][j] == 0
 
     def create_points_from_row(self, row):
         return {(row, col): self.options[row][col] for col in range(9)}
@@ -34,7 +66,18 @@ class BoardOptionsManager:
     def create_points_from_col(self, col):
         return {(row, col): self.options[row][col] for row in range(9)}
 
-    def update_board_options_according_to_value(self, col, row, val):
+    def create_points_from_square(self, row, col):
+        res = {}
+        square_start_row = row - (row % 3)
+        square_start_col = col - (col % 3)
+        for i in range(3):
+            row = square_start_row + i
+            for j in range(3):
+                col = square_start_col + j
+                res[(row, col)] = self.options[row][col]
+        return res
+
+    def update_board_options_according_to_value(self, row, col, val):
         if val == 0:
             return
         for i in range(9):
@@ -77,13 +120,36 @@ class BoardOptionsManager:
 
     def update_board_options_according_to_row_group(self, row):
         point_to_options = self.create_points_from_row(row)
+        old_point_to_options = deepcopy(point_to_options)
+
         self.handle_naked_subset(point_to_options)
+        self.assert_rules()
+
         self.handle_hidden_subset(point_to_options)
+        self.assert_rules()
+
 
     def update_board_options_according_to_col_group(self, col):
         point_to_options = self.create_points_from_col(col)
+        old_point_to_options = deepcopy(point_to_options)
         self.handle_naked_subset(point_to_options)
+        old_point_to_options2 = deepcopy(point_to_options)
+
+        self.assert_rules()
+
         self.handle_hidden_subset(point_to_options)
+        self.assert_rules()
+
+    def update_board_options_according_to_square_group(self, row, col):
+        point_to_options = self.create_points_from_square(row, col)
+        old_point_to_options = deepcopy(point_to_options)
+        self.handle_naked_subset(point_to_options)
+        old_point_to_options2 = deepcopy(point_to_options)
+
+        self.assert_rules()
+
+        self.handle_hidden_subset(point_to_options)
+        self.assert_rules()
 
     def handle_naked_subset(self, point_to_options):
         options_to_points = defaultdict(set)
@@ -104,13 +170,11 @@ class BoardOptionsManager:
     def handle_hidden_subset(self, point_to_options):
         options_to_points = defaultdict(set)
         for point, options in point_to_options.items():
-            if len(options) <= 1:
-                continue
-            sorted_options = tuple(sorted(options))
-            options_to_points[sorted_options].add(point)
+            for option in options:
+                options_to_points[option].add(point)
         points_subset_to_option_subset = defaultdict(set)
         for val, points in options_to_points.items():
-            key = tuple(sorted(tuple(points)))
+            key = tuple(sorted(list(points)))
             points_subset_to_option_subset[key].add(val)
         for point_subset, option_subset in points_subset_to_option_subset.items():
             if len(point_subset) != len(option_subset):

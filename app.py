@@ -52,6 +52,9 @@ def handle_message(message):
                               'id': message['id']})
         time.sleep(0.01)
 
+    print('DONE')
+
+
 @app.route('/solution', methods=['POST'])
 def solution():
     print('hi')
