@@ -48,11 +48,14 @@ def handle_message(message):
     solver = SudokoSmartSolver(message['board'])
     solver.print_options()
     print(solver.stringify())
-    for board in solver.solve():
-        emit('update_board', {'board': board,
+    for s in solver.solve():
+        emit('update_board', {'board': s.board,
+                              'options': list(s.get_options_list()),
                               'id': message['id']})
         time.sleep(0.01)
-
+    emit('update_board', {'board': s.board,
+                          'options': list(s.get_options_list()),
+                          'id': message['id']})
     print('DONE')
 
 

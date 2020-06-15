@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from board_options_manager import BoardOptionsManager
 
 
@@ -5,6 +7,9 @@ class SudokuSolver:
     def __init__(self, board):
         self.board = board
         self.solved = False
+
+    def get_options(self):
+        return {}
 
     def stringify(self):
         return ''.join([str(self.board[i][j]) for i in range(9) for j in range(9)]).replace('0', '.')
@@ -103,7 +108,7 @@ class SudokoSmartSolver(SudokuSolver):
             for (i, j), val in next_steps:
                 self.options_handler.options[i][j] = set()
                 self.board[i][j] = val
-                yield self.board
+                yield self
                 self.update_board_options_according_to_cell(i, j)
 
     def update_board_options_according_to_cell(self, row, col):
@@ -112,3 +117,13 @@ class SudokoSmartSolver(SudokuSolver):
 
     def print_options(self):
         self.options_handler.print_options()
+
+    def get_options(self):
+        return self.options_handler.options
+
+    def get_options_list(self):
+        options = deepcopy(self.get_options())
+        for i in range(9):
+            for j in range(9):
+                options[i][j] = list(options[i][j])
+        return options

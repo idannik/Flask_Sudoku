@@ -11,20 +11,18 @@ document.addEventListener("DOMContentLoaded", function () {
         return document.querySelector(`#sudoku${id} > div:nth-child(${square}) > div:nth-child(${cell})`);
     }
 
-    const get_cell_accroding_to_row_and_col = (row, col, id) => {
+    const get_cell_according_to_row_and_col = (row, col, id) => {
         const square = Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1
         const cell = (row % 3) * 3 + col % 3 + 1
         return query_soduko_cell(id, square, cell)
     }
 
     const no_focus_on_cell = () => {
-        return window.focus_cell.index == -1 && window.focus_cell.row == -1 && window.focus_cell.col == -1
+        return window.focus_cell.index === -1 && window.focus_cell.row === -1 && window.focus_cell.col === -1
     }
 
     const get_focus_cell = () => {
-        return get_cell_accroding_to_row_and_col(window.focus_cell.row,
-            window.focus_cell.col,
-            window.focus_cell.index)
+        return get_cell_according_to_row_and_col(window.focus_cell.row, window.focus_cell.col, window.focus_cell.index)
     };
 
     const unfocus_old_cell = () => {
@@ -42,8 +40,8 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
 
-    function set_div_pencil_mode(div, pencil_mode) {
-        if (div.pencil_mode != pencil_mode) {
+    const set_div_pencil_mode = (div, pencil_mode) => {
+        if (div.pencil_mode !== pencil_mode) {
             div.textContent = ""
         }
         div.pencil_mode = pencil_mode;
@@ -58,13 +56,12 @@ document.addEventListener("DOMContentLoaded", function () {
         div.style.backgroundColor = color
         div.style.fontSize = fontSize
         div.style.fontWeight = fontWeight
-
     }
 
     const init_cell_on_click = () => {
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
-                let div = get_cell_accroding_to_row_and_col(i, j, 0)
+                let div = get_cell_according_to_row_and_col(i, j, 0)
                 if (div) {
                     div.onclick = (event) => {
                         if (!event.target.disabled) {
@@ -111,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
             for (let i = 0; i < 9; i++) {
                 let row = []
                 for (let j = 0; j < 9; j++) {
-                    let val = get_cell_accroding_to_row_and_col(i, j, id).textContent
+                    let val = get_cell_according_to_row_and_col(i, j, id).textContent
                     if (val === '') {
                         row[j] = 0
                     } else {
@@ -129,21 +126,36 @@ document.addEventListener("DOMContentLoaded", function () {
     socket.on('update_board', function (message) {
         const board = message['board']
         const id = message["id"]
+        const options = message['options']
         console.log(message)
         console.log('here2')
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
-                let div = get_cell_accroding_to_row_and_col(i, j, id)
+                let div = get_cell_according_to_row_and_col(i, j, id)
                 if (div) {
                     if (board[i][j] > 0) {
+                        set_div_pencil_mode(div,false)
                         div.textContent = board[i][j]
                         div.disabled = true
                         div.style.backgroundColor = "lightgray"
+                        div.pencil_mode = false
+
                     } else {
+
                         div.textContent = ""
                         div.disabled = false
+                        if (options && options[i][j]) {
+                            set_div_pencil_mode(div, true)
+                            numbers = options[i][j]
+                            numbers.sort()
+                            div.textContent = numbers.join(" ")
+                            div.style.backgroundColor = ''
+                        }
+                        else {
+                            div.pencil_mode = false
+                        }
                     }
-                    div.pencil_mode = false
+
                 }
 
             }
