@@ -22,20 +22,14 @@ if 'HEROKU' in os.environ:
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', board=Sudoku().board)
+    return render_template('index.html')
 
 
-@socketio.on('connect')
-def handle_connect():
-    print('Client connected')
-    b = Sudoku().board
+@socketio.on('board_load')
+def handle_connect(json):
+    print('got load request')
+    b = Sudoku(json['board_id']).board
     emit('update_board', {'board': b, 'id': 0})
-
-
-@socketio.on('my_event')
-def handle_my_custom_event(json):
-    emit('my_response',
-         {'new_board': Sudoku().board})
 
 
 @socketio.on('message')
@@ -52,9 +46,9 @@ def handle_message(message):
         emit('update_board', {'board': s.board,
                               'options': list(s.get_options_list()),
                               'id': message['id']})
-        time.sleep(0.01)
-    emit('update_board', {'board': s.board,
-                          'options': list(s.get_options_list()),
+        time.sleep(0.05)
+    emit('update_board', {'board': solver.board,
+                          'options': list(solver.get_options_list()),
                           'id': message['id']})
     print('DONE')
 

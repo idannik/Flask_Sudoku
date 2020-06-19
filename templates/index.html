@@ -1,13 +1,31 @@
 {% extends "base.html" %}
 {% block javascript %}
-    <script type="text/javascript" src="static/js/board.js"></script>
 {% endblock %}
 {% block content %}
-    <div class="boards">
-        {% for index in range(1) %}
-                {% include 'board.html' %}
-        {% endfor %}
+<div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2">
+                <label>soduko
+                    <input value="3400">
+                </label>
+                <button type="button" class="btn btn-secondary btn-lg" id="load-btn">Load</button>
+                <button type="button" class="btn btn-primary btn-lg" id="solve-btn">Solve</button>
+                <button type="button" class="btn btn-info btn-lg" id="undo-btn">Undo</button>
+
+            </div>
+
+            <div class="col-md-8">
+                <div class="boards">
+                    {% for index in range(1) %}
+                        {% include 'board.html' %}
+                    {% endfor %}
+                </div>
+
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+
+
     </div>
-    <button type="button" class="btn btn-primary btn-lg" id="solve-btn">Solve</button>
-    <button type="button" class="btn btn-danger btn-lg" id="clear">Clear</button>
+
 {% endblock %}

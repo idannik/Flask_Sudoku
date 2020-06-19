@@ -108,8 +108,9 @@ document.addEventListener("DOMContentLoaded", function () {
             for (let i = 0; i < 9; i++) {
                 let row = []
                 for (let j = 0; j < 9; j++) {
-                    let val = get_cell_according_to_row_and_col(i, j, id).textContent
-                    if (val === '') {
+                    let div = get_cell_according_to_row_and_col(i, j, id)
+                    let val = div.textContent
+                    if (val === '' || div.pencil_mode) {
                         row[j] = 0
                     } else {
                         row[j] = parseInt(val)
@@ -120,6 +121,11 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             socket.emit('solve', {board: board, id: id});
         }
+    }
+
+    document.querySelector("#load-btn").onclick = function () {
+        idx = document.querySelector("body > div.container-fluid > div > div:nth-child(1) > label > input").value
+        socket.emit('board_load', {board_id: idx});
     }
 
 
@@ -134,14 +140,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 let div = get_cell_according_to_row_and_col(i, j, id)
                 if (div) {
                     if (board[i][j] > 0) {
-                        set_div_pencil_mode(div,false)
+                        set_div_pencil_mode(div, false)
                         div.textContent = board[i][j]
                         div.disabled = true
                         div.style.backgroundColor = "lightgray"
                         div.pencil_mode = false
 
                     } else {
-
                         div.textContent = ""
                         div.disabled = false
                         if (options && options[i][j]) {
@@ -149,11 +154,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             numbers = options[i][j]
                             numbers.sort()
                             div.textContent = numbers.join(" ")
-                            div.style.backgroundColor = ''
-                        }
-                        else {
+                        } else {
                             div.pencil_mode = false
                         }
+                        div.style.backgroundColor = ''
+
                     }
 
                 }
