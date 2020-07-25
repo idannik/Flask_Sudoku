@@ -1,5 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
-    var socket = io();
+    load_board()
+
+    function load_board() {
+        idx = document.querySelector("body > div.container-fluid > div > div:nth-child(1) > label > input").value
+        fetch($SCRIPT_ROOT + '/get_board/' + idx)
+            .then(res => res.json())
+            .then(res => load_board_from_json(res));
+    }
 
     window.focus_cell = {
         index: -1,
@@ -102,69 +109,74 @@ document.addEventListener("DOMContentLoaded", function () {
     init_cell_on_click()
 
 
-    document.querySelector("#solve-btn").onclick = function () {
-        let board = []
-        for (let id = 0; id < 1; id++) {
-            for (let i = 0; i < 9; i++) {
-                let row = []
-                for (let j = 0; j < 9; j++) {
-                    let div = get_cell_according_to_row_and_col(i, j, id)
-                    let val = div.textContent
-                    if (val === '' || div.pencil_mode) {
-                        row[j] = 0
-                    } else {
-                        row[j] = parseInt(val)
-                    }
+    function post_board(mode) {
+        return function () {
+            let board = []
+            for (let id = 0; id < 1; id++) {
+                for (let i = 0; i < 9; i++) {
+                    let row = []
+                    for (let j = 0; j < 9; j++) {
+                        let div = get_cell_according_to_row_and_col(i, j, id)
+                        let val = div.textContent
+                        if (val === '' || div.pencil_mode) {
+                            row[j] = 0
+                        } else {
+                            row[j] = parseInt(val)
+                        }
 
+                    }
+                    board[i] = row
                 }
-                board[i] = row
+                fetch($SCRIPT_ROOT + '/' + mode + '/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({board: board, id: id}),
+                })
+                    .then(res => res.json())
+                    .then(res => load_board_from_json(res));
             }
-            socket.emit('solve', {board: board, id: id});
-        }
+        };
     }
+
+    document.querySelector("#solve-btn").onclick = post_board('solve_board')
+
+    document.querySelector("#fill-pencil-marks-btn").onclick = post_board('get_pencil_marks')
 
     document.querySelector("#load-btn").onclick = function () {
-        idx = document.querySelector("body > div.container-fluid > div > div:nth-child(1) > label > input").value
-        socket.emit('board_load', {board_id: idx});
+        load_board();
     }
 
-
-    socket.on('update_board', function (message) {
+    function load_board_from_json(message) {
         const board = message['board']
         const id = message["id"]
         const options = message['options']
-        console.log(message)
-        console.log('here2')
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
                 let div = get_cell_according_to_row_and_col(i, j, id)
                 if (div) {
-                    if (board[i][j] > 0) {
+
+                    if (board && board[i][j] > 0) {
                         set_div_pencil_mode(div, false)
                         div.textContent = board[i][j]
                         div.disabled = true
                         div.style.backgroundColor = "lightgray"
                         div.pencil_mode = false
 
-                    } else {
+                    }
+                    if (options && options[i][j].length > 0) {
                         div.textContent = ""
                         div.disabled = false
-                        if (options && options[i][j]) {
-                            set_div_pencil_mode(div, true)
-                            numbers = options[i][j]
-                            numbers.sort()
-                            div.textContent = numbers.join(" ")
-                        } else {
-                            div.pencil_mode = false
-                        }
+                        set_div_pencil_mode(div, true)
                         div.style.backgroundColor = ''
-
+                        let numbers = options[i][j]
+                        numbers.sort()
+                        div.textContent = numbers.join(" ")
                     }
-
                 }
-
             }
         }
-    });
+    }
 });
 

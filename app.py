@@ -1,18 +1,22 @@
 import os
 import time
+from flask_cors import CORS
 
 from flask import Flask
 from flask import render_template
-from flask_socketio import SocketIO, emit
+from flask import request
 
+from SodukoUtils import init_board_options
 from data.sudopy import Sudoku
-from sudoko_solver import SudokoSmartSolver
-
-# data.config.from_object('local_config')
+from sudoko_solver import SudokuSuggester
+from flask import Flask
 
 app = Flask(__name__)
+CORS(app)
 
-socketio = SocketIO(app)
+@app.route("/greeting")
+def greeting():
+    return {"greeting": "Hello from Flask!"}
 
 if 'HEROKU' in os.environ:
     app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
@@ -22,38 +26,26 @@ if 'HEROKU' in os.environ:
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html')
+    return 'hi'
 
 
-@socketio.on('board_load')
-def handle_connect(json):
+@app.route('/get_board/<int:board_id>', methods=['GET'])
+def handle_connect(board_id):
+    json = request.get_json()
     print('got load request')
-    b = Sudoku(json['board_id']).board
-    emit('update_board', {'board': b, 'id': 0})
+    b = Sudoku(board_id).board
+    return {'board': b, 'id': 0}
 
 
-@socketio.on('message')
-def handle_message(message):
-    print('received message: ' + message)
+@app.route('/get_pencil_marks/', methods=['POST'])
+def handle_message():
+    message = request.get_json()
+    options = init_board_options(message['board'])
+    return {'options': options,
+            'id': message['id']}
 
 
-@socketio.on('solve')
-def handle_message(message):
-    solver = SudokoSmartSolver(message['board'])
-    solver.print_options()
-    print(solver.stringify())
-    for s in solver.solve():
-        emit('update_board', {'board': s.board,
-                              'options': list(s.get_options_list()),
-                              'id': message['id']})
-        time.sleep(0.05)
-    emit('update_board', {'board': solver.board,
-                          'options': list(solver.get_options_list()),
-                          'id': message['id']})
-    print('DONE')
-
-
-@app.route('/solution', methods=['POST'])
+# @app.route('/solution', methods=['POST'])
 def solution():
     print('hi')
 

@@ -46,4 +46,4 @@ class Sudoku:
                 cell_row = square_row * 3 + (cell_num // 3)
                 cell_col = square_col * 3 + (cell_num % 3)
                 if not cell.input:
-                    self.board[cell_row][cell_col] = cell.contents[0]
+                    self.board[cell_row][cell_col] = int(cell.contents[0])
