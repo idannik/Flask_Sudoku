@@ -31,23 +31,18 @@ def index():
 
 @app.route('/get_board/<int:board_id>', methods=['GET'])
 def handle_connect(board_id):
-    json = request.get_json()
     print('got load request')
     b = Sudoku(board_id).board
     return {'board': b, 'id': 0}
 
 
-@app.route('/get_pencil_marks/', methods=['POST'])
-def handle_message():
+@app.route('/get_pencil_marks', methods=['GET', 'POST'])
+def get_options():
+    print('got load options')
     message = request.get_json()
     options = init_board_options(message['board'])
-    return {'options': options,
-            'id': message['id']}
+    return {'options': options}
 
-
-# @app.route('/solution', methods=['POST'])
-def solution():
-    print('hi')
 
 
 def clean_puzzle(puzzle):
