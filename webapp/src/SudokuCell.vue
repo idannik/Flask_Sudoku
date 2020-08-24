@@ -16,12 +16,13 @@
         },
         methods: {
             get_value() {
+                if (!this.value && this.pencil_marks.length > 0) {
+                    return this.pencil_marks.join(' ')
+                }
                 if (this.value > 0) {
                     return this.value
                 }
-                if (this.pencil_marks.length > 0) {
-                    return this.pencil_marks.join(' ')
-                }
+
                 return ''
             },
             get_cls() {

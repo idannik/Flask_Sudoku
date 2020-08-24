@@ -1,3 +1,6 @@
+from contextlib import suppress
+
+from flask import session
 def init_board_options(board):
     options = []
     for i in range(9):
@@ -12,9 +15,7 @@ def init_board_options(board):
         for j in range(9):
             if board[i][j]:
                 update_board_options_according_to_value(options, i, j, val=board[i][j])
-    for i in range(9):
-        for j in range(9):
-            options[i][j] = list(options[i][j])
+
     return options
 
 
@@ -22,10 +23,15 @@ def update_board_options_according_to_value(options, row, col, val):
     if val == 0:
         return
     for i in range(9):
-        options[i][col].discard(val)
-        options[row][i].discard(val)
+            options[i][col].discard(val)
+            options[row][i].discard(val)
     square_start_row = row - (row % 3)
     square_start_col = col - (col % 3)
     for i in range(3):
         for j in range(3):
             options[square_start_row + i][square_start_col + j].discard(val)
+
+def find_next_move():
+    print(session['options'])
+    print(session['board'])
+    return {}
