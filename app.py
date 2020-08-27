@@ -62,7 +62,7 @@ def get_options():
     print('got load options')
     options = init_board_options(session['board'])
     session['options'] = options
-    options_with_list_instead_of_sets = [[list(options[i][j]) for i in range(9)]for j in range(9)]
+    options_with_list_instead_of_sets = [[list(options[i][j]) for j in range(9)]for i in range(9)]
     return {'options': options_with_list_instead_of_sets}
 
 
