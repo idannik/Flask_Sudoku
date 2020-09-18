@@ -21,7 +21,21 @@ app.config.update(
     SESSION_COOKIE_SAMESITE='None',
 )
 
+'''
+why I'm doing so :
+1. I want to succeed in being a better SW engineer
+2. I want to improve my web development skills
+3. I want to be better at sudoku
+4. show myself that I can handle this code 
+5. show myself that I can learn how to develop in web
+'''
 
+
+''' next steps:
+FE
+1. provide a focus and enter a value and pencil marks
+2. provide reason solution 
+'''
 
 @app.route("/greeting")
 def greeting():
@@ -37,13 +51,8 @@ def index():
 
 @app.route('/get_board/<int:board_id>', methods=['GET'])
 def handle_connect(board_id):
-    print('got load request')
     b = Sudoku(board_id).board
-    print(f'old board data = ' + str(session.get('board')))
-    print(f'old board a = ' + str(session.get('a')))
-
     session['board'] = b
-
     session['options'] = [[] * 9 for _ in range(9)]
     return {'board': b, 'id': 0}
 
@@ -66,10 +75,14 @@ def get_options():
     return {'options': options_with_list_instead_of_sets}
 
 
-@app.route('/next_step', methods=['GET'])
+@app.route('/get_next_step', methods=['GET'])
 def get_next_step():
-    print('got load options')
-    return find_next_move()
+    print('got load next step!!!!!')
+    board = session['board']
+    options = session['options']
+    options = [[set(options[i][j]) for j in range(9)]for i in range(9)]
+    res = find_next_move(board, options)
+    return res
 
 
 def clean_puzzle(puzzle):
